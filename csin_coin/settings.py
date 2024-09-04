@@ -44,6 +44,8 @@ INSTALLED_APPS = [
 
     "debug_toolbar",
 
+    'app.user',
+
 ]
 
 MIDDLEWARE = [
@@ -92,6 +94,11 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = "user.User"
+
+AUTHENTICATION_BACKENDS = [
+    'app.user.backends.UserModelBackend'
+]
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
