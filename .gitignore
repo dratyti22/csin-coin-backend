@@ -1,0 +1,25 @@
+#ide settings
+.vscode/
+.idea/
+
+#python
+__pycache__/
+
+#Media
+media/
+
+#Static
+static/
+
+#Secret environment variables
+.env
+
+#sqlite3
+db.sqlite3
+
+#coverage
+.coverage
+htmlcov/
+
+#Docker
+docker/
