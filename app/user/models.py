@@ -1,39 +1,40 @@
+from shortuuid import ShortUUID
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser
-from django.db.models import UUIDField
-from uuid import uuid4
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, password, **extra_fields):
         if not email:
-            raise ValueError('Users must have an email address')
-        user = self.model(
-            email=self.normalize_email(email),
-            key=uuid4()
-        )
+            raise ValueError("The Email must be set")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save(using=self._db)
+        user.key = ShortUUID().random(length=20)
+        user.is_active = False
+        user.save()
         return user
 
-    def create_superuser(self, email, password=None):
-        user = self.create_user(
-            email,
-            password=password,
-        )
-        user.is_admin = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=50, blank=True, null=True)
-    last_name = models.CharField(max_length=50, blank=True, null=True)
+    id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=150, null=True, blank=True)
     middle_name = models.CharField(max_length=50, blank=True, null=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
-    key = UUIDField(unique=True, default=uuid4, editable=False)
+    key = models.CharField(max_length=20, unique=True, editable=False)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     STATUS = [
         (1, "active"),
@@ -61,6 +62,11 @@ class User(AbstractUser):
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    class Meta:
+        db_table = "user"
+        verbose_name = "Пользователя"
+        verbose_name_plural = "Пользователи"
 
     def __str__(self):
         return self.email
