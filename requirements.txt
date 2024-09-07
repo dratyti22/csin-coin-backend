@@ -5,3 +5,4 @@ psycopg2-binary==2.9.9
 djangorestframework==3.15.2
 shortuuid==1.0.13
 django-mptt==0.16.0
+pillow==10.4.0
