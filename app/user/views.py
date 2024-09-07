@@ -1,9 +1,10 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.shortcuts import render
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -53,9 +54,12 @@ class LoginUserView(APIView):
         password = request.data.get('password')
         if not email or not password:
             return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-        user = authenticate(request, username=email, password=password)
-        login(request, user)
-        return Response({"success": "You have logged in successfully"}, status=status.HTTP_200_OK)
+        try:
+            user = authenticate(request, username=email, password=password)
+            login(request, user)
+            return Response({"success": "You have logged in successfully"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Need to confirm account'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AvtivateUserView(APIView):
@@ -73,3 +77,11 @@ class AvtivateUserView(APIView):
             return Response({"success": "You have activated your account"}, status=status.HTTP_200_OK)
         else:
             return Response({"failed": "Failed to activate account"}, status=status.HTTP_200_OK)
+
+
+class LogoutUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        logout(request)
+        return Response({"success": "Logged out"}, status=status.HTTP_200_OK)
