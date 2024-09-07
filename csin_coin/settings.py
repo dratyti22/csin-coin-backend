@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'app.user',
     'app.wallet',
+    'app.news',
 
 ]
 
