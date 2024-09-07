@@ -20,7 +20,7 @@ class CategoryModel(MPTTModel):
         order_insertion_by = ['name']
 
     class Meta:
-        db_table = 'news_category'
+        db_table = 'news_category_model'  # Changed table name
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
 
@@ -31,7 +31,7 @@ class NewsModel(models.Model):
     title = models.CharField(max_length=255, verbose_name="Заголовок новости")
     description = models.TextField(verbose_name="Описание")
     time_created = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
-    category = models.ForeignKey(CategoryModel, on_delete=models.CASCADE, verbose_name="Категория")
+    category = models.ManyToManyField(CategoryModel, verbose_name="Категория")
 
     class Meta:
         db_table = 'news'

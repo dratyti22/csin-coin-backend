@@ -13,7 +13,7 @@ class CategoryAdmin(DraggableMPTTAdmin):
 
 @admin.register(NewsModel)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'description', 'time_created', 'category']
+    list_display = ['id', 'title', 'description', 'time_created']
     list_filter = ["id"]
     search_fields = ["id"]
 
