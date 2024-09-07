@@ -2,3 +2,5 @@ Django==4.2.15
 django-environ==0.11.2
 django-debug-toolbar==4.4.6
 psycopg2-binary==2.9.9
+djangorestframework==3.15.2
+shortuuid==1.0.13
