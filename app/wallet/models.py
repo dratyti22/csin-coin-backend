@@ -16,3 +16,18 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"Transaction from {self.sender.email} to {self.receiver.email} - {self.amount}"
+
+
+class CsinCoinModel(models.Model):
+    turnover = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Оборот")
+    number_coins = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Количество монет")
+    well = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Курс")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "csin_coin_model"
+        verbose_name = "Курс CsinCoin"
+        verbose_name_plural = "Курсы CsinCoin"
+
+    def __str__(self):
+        return f"{self.turnover}-{self.number_coins}-{self.well}"
