@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app.wallet.models import Transaction
+from app.wallet.serializers import TransactionSerializer
 
 User = get_user_model()
 
@@ -41,38 +42,45 @@ class StatusAdminView(APIView):
 class TransferMoneyView(APIView):
     @transaction.atomic
     def post(self, request):
-        try:
-            sender_id = request.data.get('sender_id')
-            receiver_id = request.data.get('receiver_id')
-            amount = request.data.get('amount')
+        sender_id = request.data.get('sender_id')
+        receiver_id = request.data.get('receiver_id')
+        amount = request.data.get('amount')
+        if not [sender_id, receiver_id, amount]:
+            return Response({"failed": "Need data"}, status=status.HTTP_401_UNAUTHORIZED)
+        sender = User.objects.get(id=sender_id)
+        receiver = User.objects.get(id=receiver_id)
 
-            sender = User.objects.get(id=sender_id)
-            receiver = User.objects.get(id=receiver_id)
+        if sender.status == "frozen" or receiver.status == "frozen":
+            return Response(
+                {"failed": "You will be able to trade only after a few days"},
+                status=status.HTTP_400_BAD_REQUEST)
 
-            if sender.status == "frozen" or receiver.status == "frozen":
-                return Response(
-                    {"failed": "You will be able to trade only after a few days"},
-                    status=status.HTTP_400_BAD_REQUEST)
+        if sender.status == "blocked" or receiver.status == "blocked":
+            return Response(
+                {"failed": "You are blocked, you cannot do anything, to remove please contact the administration"},
+                status=status.HTTP_400_BAD_REQUEST)
 
-            if sender.status == "blocked" or receiver.status == "blocked":
-                return Response(
-                    {"failed": "You are blocked, you cannot do anything, to remove please contact the administration"},
-                    status=status.HTTP_400_BAD_REQUEST)
+        # Проверка баланса отправителя
+        if sender.balance < amount:
+            return Response({"failed": "Sender has insufficient funds"}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Проверка баланса отправителя
-            if sender.balance < amount:
-                raise ValueError("Недостаточно средств")
+        # Выполнение транзакции
+        sender.balance -= amount
+        sender.save()
 
-            # Выполнение транзакции
-            sender.balance -= amount
-            sender.save()
+        receiver.balance += amount
+        receiver.save()
 
-            receiver.balance += amount
-            receiver.save()
+        # Создание записи о транзакции
+        Transaction.objects.create(sender=sender, receiver=receiver, amount=amount)
 
-            # Создание записи о транзакции
-            Transaction.objects.create(sender=sender, receiver=receiver, amount=amount)
+        return Response({"success": "Money transferred successfully"}, status=status.HTTP_200_OK)
 
-            return Response("Деньги переведены успешно", status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(f"Ошибка: {str(e)}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetTransferMoneyView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        transactions = Transaction.objects.all().select_related("sender", "receiver")
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
