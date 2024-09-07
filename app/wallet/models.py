@@ -21,7 +21,7 @@ class Transaction(models.Model):
 class CsinCoinModel(models.Model):
     turnover = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Оборот")
     number_coins = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Количество монет")
-    well = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Курс")
+    well = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Курс", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -31,3 +31,8 @@ class CsinCoinModel(models.Model):
 
     def __str__(self):
         return f"{self.turnover}-{self.number_coins}-{self.well}"
+
+    def save(self, *args, **kwargs):
+        if self.number_coins > 0:
+            self.well = self.turnover / self.number_coins
+        super().save(*args, **kwargs)

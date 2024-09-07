@@ -2,12 +2,14 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from app.wallet.models import Transaction
-from app.wallet.serializers import TransactionSerializer
+from app.wallet.models import Transaction, CsinCoinModel
+from app.wallet.permissions import CreateIsAdminOrRead
+from app.wallet.serializers import TransactionSerializer, CsinCoinSerializer
 
 User = get_user_model()
 
@@ -84,3 +86,10 @@ class GetTransferMoneyView(APIView):
         transactions = Transaction.objects.all().select_related("sender", "receiver")
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
+
+
+class CsinCoinView(ListCreateAPIView):
+    queryset = CsinCoinModel.objects.all()
+    permission_classes = [CreateIsAdminOrRead]
+    serializer_class = CsinCoinSerializer
+
