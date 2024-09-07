@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from app.service.email import send_activate_email_message
 from app.user.models import User
+from app.user.serializers import ProfileUserSerializer
 
 
 class CreateUserView(APIView):
@@ -85,3 +86,12 @@ class LogoutUserView(APIView):
     def post(self, request):
         logout(request)
         return Response({"success": "Logged out"}, status=status.HTTP_200_OK)
+
+
+class ProfileUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = ProfileUserSerializer(user)
+        return Response(serializer.data)
