@@ -1,7 +1,10 @@
 from django.urls import path
+from rest_framework.routers import SimpleRouter
 
 from app.news.views import CategoryView
 
-urlpatterns = [
-    path("category/", CategoryView.as_view(), name="category"),
-]
+router = SimpleRouter()
+
+router.register("category", CategoryView)
+
+urlpatterns = router.urls
