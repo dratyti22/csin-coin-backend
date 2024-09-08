@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from app.service.email import send_activate_email_message
+from app.service.tasks import send_activate_email_message_task
 from app.user.models import User
 from app.user.serializers import ProfileUserSerializer
 
@@ -44,7 +45,7 @@ class CreateUserView(APIView):
         except IntegrityError as e:
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-        send_activate_email_message(email)
+        send_activate_email_message_task.delay(email)
 
         return Response({'message': 'Account has been created, confirm your account'}, status=status.HTTP_201_CREATED)
 
