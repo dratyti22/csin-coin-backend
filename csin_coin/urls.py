@@ -22,5 +22,5 @@ urlpatterns = [
   path('admin/', admin.site.urls),
   path("user/", include("app.user.urls")),
   path("", include("app.wallet.urls")),
-  path("news/", include("app.news.urls")),
+  path("api/", include("app.news.urls")),
 ] + debug_toolbar_urls()
