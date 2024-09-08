@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "mptt",
+    "django_filters",
 
     'app.user',
     'app.wallet',
