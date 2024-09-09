@@ -82,15 +82,3 @@ services:
     command: celery -A remnovo worker --loglevel=info --logfile=./docker/logs/celery-worker.log
     depends_on:
       - redis
-
-  celery-beat:
-    build: .
-    container_name: celery-beat
-    env_file:
-      - docker/env/.env.prod
-    depends_on:
-      - redis
-    command: celery -A remnovo beat --loglevel=info --logfile=./docker/logs/celery-beat.log
-    volumes:
-      - media:/app/media
-      - ./:/app

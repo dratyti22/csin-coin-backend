@@ -17,7 +17,6 @@ from app.user.serializers import ProfileUserSerializer
 class CreateUserView(APIView):
     def post(self, request):
         data = request.data
-        print(data)
         required_fields = ['first_name', 'last_name', 'date_of_birth', 'email', 'phone_number',
                            'password']
 
