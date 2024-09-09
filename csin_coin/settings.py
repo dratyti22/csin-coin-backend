@@ -183,3 +183,65 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Moscow'
+
+
+
+REST_FRAMEWORK = {
+    #    'DEFAULT_RENDERER_CLASSES': (
+    #    'rest_framework.renderers.JSONRenderer',
+    #),
+    #'DEFAULT_PARSER_CLASSES': (
+    #    'rest_framework.parsers.JSONParser',
+    #),
+}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'docker/logs/app.log',
+            'maxBytes': 1024 * 1024 * 5,  # 5MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'debug_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'docker/logs/debug.log',
+            'maxBytes': 1024 * 1024 * 4,  # 4MB
+            'backupCount': 4,
+            'formatter': 'verbose',
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'docker/logs/error.log',
+            'maxBytes': 1024 * 1024 * 6,  # 6MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['file'],
+            'level': "INFO"
+        },
+        'django': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'root': {
+            'handlers': ['error_file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
